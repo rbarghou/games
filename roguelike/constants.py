@@ -30,3 +30,7 @@ MAX_ROOMS = 30
 HEALTH_BAR_WIDTH = 30
 HEALTH_BAR_HEIGHT = 5
 HEALTH_BAR_OFFSET = 5  # pixels above entity
+
+# Attack effect settings
+ATTACK_EFFECT_DURATION = 200  # milliseconds
+ATTACK_EFFECT_COLOR = (255, 255, 0)  # Yellow

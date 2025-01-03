@@ -11,6 +11,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = y
         self.speed = PLAYER_SPEED
         self.hp = PLAYER_HP
+        self.attack_effect_time = 0
         
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -63,6 +64,9 @@ class Player(pygame.sprite.Sprite):
                               self.rect.centery // TILE_SIZE)
     
     def attack(self):
+        # Start attack effect timer
+        self.attack_effect_time = pygame.time.get_ticks()
+        
         # Return attack rectangle for collision detection
         attack_rect = pygame.Rect(
             self.rect.centerx - ATTACK_RANGE,
@@ -71,6 +75,16 @@ class Player(pygame.sprite.Sprite):
             ATTACK_RANGE * 2
         )
         return attack_rect
+        
+    def draw_attack_effect(self, screen, camera_offset):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.attack_effect_time < ATTACK_EFFECT_DURATION:
+            # Draw attack range circle
+            center_x = self.rect.centerx - camera_offset[0]
+            center_y = self.rect.centery - camera_offset[1]
+            pygame.draw.circle(screen, ATTACK_EFFECT_COLOR, 
+                             (center_x, center_y), 
+                             ATTACK_RANGE, 2)  # 2 pixel width outline
         
     def draw(self, screen):
         screen.blit(self.image, self.rect)
