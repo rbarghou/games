@@ -12,6 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = PLAYER_SPEED
         self.hp = PLAYER_HP
         self.attack_effect_time = 0
+        self.facing = 'right'  # Can be: 'left', 'right', 'up', 'down'
         
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
@@ -49,6 +50,16 @@ class Player(pygame.sprite.Sprite):
             dx += joystick.get_hat(0)[0] * self.speed
             dy += joystick.get_hat(0)[1] * self.speed
         
+        # Update facing direction based on movement
+        if dx > 0:
+            self.facing = 'right'
+        elif dx < 0:
+            self.facing = 'left'
+        if dy > 0:
+            self.facing = 'down'
+        elif dy < 0:
+            self.facing = 'up'
+
         # Test x movement
         self.rect.x += dx
         if self.check_collision(game_map):
@@ -87,3 +98,22 @@ class Player(pygame.sprite.Sprite):
         
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+        
+        # Draw direction indicator
+        indicator_size = 8
+        if self.facing == 'right':
+            pygame.draw.rect(screen, WHITE, (self.rect.right - indicator_size, 
+                                           self.rect.centery - indicator_size//2,
+                                           indicator_size, indicator_size))
+        elif self.facing == 'left':
+            pygame.draw.rect(screen, WHITE, (self.rect.left, 
+                                           self.rect.centery - indicator_size//2,
+                                           indicator_size, indicator_size))
+        elif self.facing == 'up':
+            pygame.draw.rect(screen, WHITE, (self.rect.centerx - indicator_size//2,
+                                           self.rect.top,
+                                           indicator_size, indicator_size))
+        elif self.facing == 'down':
+            pygame.draw.rect(screen, WHITE, (self.rect.centerx - indicator_size//2,
+                                           self.rect.bottom - indicator_size,
+                                           indicator_size, indicator_size))
