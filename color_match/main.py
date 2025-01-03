@@ -145,7 +145,9 @@ class ColorMatch:
                 self.falling_colors.remove(color)
                 if color["color"] == self.target_color:
                     self.match_sound.play()
-                    self.score += 1 + self.combo
+                    self.score += int(
+                        10 * (1 + self.combo * 0.5) * (self.speed / INITIAL_SPEED)
+                    )
                     self.combo += 1
                     if self.combo >= COMBO_THRESHOLD:
                         self.combo_sound.play()
@@ -171,11 +173,13 @@ class ColorMatch:
         text_rect = text.get_rect(center=(WINDOW_WIDTH / 2, 50))
         self.screen.blit(text, text_rect)
 
-        # Draw score and combo
+        # Draw score, combo and speed
         score_text = self.font.render(f"Score: {self.score}", True, WHITE)
         combo_text = self.font.render(f"Combo: {self.combo}x", True, WHITE)
+        speed_text = self.font.render(f"Speed: {self.speed:.1f}x", True, WHITE)
         self.screen.blit(score_text, (10, 10))
         self.screen.blit(combo_text, (10, 50))
+        self.screen.blit(speed_text, (10, 90))
 
         pygame.display.flip()
 
