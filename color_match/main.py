@@ -14,10 +14,12 @@ FPS = 60
 SAMPLE_RATE = 44100
 PLAYER_SPEED = 7
 PLAYER_SIZE = 40
+INITIAL_LIVES = 3
 
 # Colors and game settings
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]
 COLOR_NAMES = ["RED", "GREEN", "BLUE", "YELLOW"]
 INITIAL_SPEED = 2
@@ -46,6 +48,11 @@ def create_fail_sound():
     return pygame.mixer.Sound(buffer=sound_data)
 
 
+def create_lose_life_sound():
+    sound_data = generate_sine_wave(220, 0.3, 0.7)
+    return pygame.mixer.Sound(buffer=sound_data)
+
+
 def create_combo_sound():
     sound_data = generate_sine_wave(440, 0.1)
     sound_data.extend(generate_sine_wave(659.25, 0.1))
@@ -59,14 +66,14 @@ class Player:
         self.speed = PLAYER_SPEED
         self.velocity_x = 0
         self.velocity_y = 0
+        self.lives = INITIAL_LIVES
+        self.invulnerable = 0
 
     def update(self):
-        # Get keyboard input
         keys = pygame.key.get_pressed()
         self.velocity_x = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed
         self.velocity_y = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
 
-        # Get gamepad input if available
         joysticks = [
             pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())
         ]
@@ -75,12 +82,12 @@ class Player:
             self.velocity_x += joy.get_axis(0) * self.speed
             self.velocity_y += joy.get_axis(1) * self.speed
 
-        # Update position
         self.rect.x += self.velocity_x
         self.rect.y += self.velocity_y
-
-        # Keep player in bounds
         self.rect.clamp_ip(pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
+
+        if self.invulnerable > 0:
+            self.invulnerable -= 1
 
 
 class ColorMatch:
@@ -89,7 +96,6 @@ class ColorMatch:
         pygame.display.set_caption("Color Match")
         self.clock = pygame.time.Clock()
 
-        # Initialize joysticks
         pygame.joystick.init()
         joysticks = [
             pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())
@@ -97,12 +103,15 @@ class ColorMatch:
         for joy in joysticks:
             joy.init()
 
-        # Generate sounds
         self.match_sound = create_match_sound()
         self.fail_sound = create_fail_sound()
         self.combo_sound = create_combo_sound()
+        self.lose_life_sound = create_lose_life_sound()
 
-        # Game state
+        self.reset_game()
+        self.font = pygame.font.Font(None, 36)
+
+    def reset_game(self):
         self.score = 0
         self.combo = 0
         self.speed = INITIAL_SPEED
@@ -111,9 +120,6 @@ class ColorMatch:
         self.target_color_name = None
         self.game_over = False
         self.player = Player(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 100)
-
-        # Font
-        self.font = pygame.font.Font(None, 36)
 
     def new_target(self):
         color_index = random.randint(0, len(COLORS) - 1)
@@ -135,12 +141,15 @@ class ColorMatch:
             if color["rect"].y > WINDOW_HEIGHT:
                 self.falling_colors.remove(color)
                 if color["color"] == self.target_color:
-                    self.fail_sound.play()
+                    if self.player.invulnerable == 0:
+                        self.lose_life_sound.play()
+                        self.player.lives -= 1
+                        if self.player.lives > 0:
+                            self.player.invulnerable = (
+                                FPS * 2
+                            )  # 2 seconds invulnerability
                     self.combo = 0
-                    if self.score > 0:
-                        self.score -= 1
 
-            # Check collision with player
             if color["rect"].colliderect(self.player.rect):
                 self.falling_colors.remove(color)
                 if color["color"] == self.target_color:
@@ -153,33 +162,50 @@ class ColorMatch:
                         self.combo_sound.play()
                     self.speed += SPEED_INCREMENT
                 else:
-                    self.fail_sound.play()
+                    if self.player.invulnerable == 0:
+                        self.fail_sound.play()
+                        self.player.lives -= 1
+                        if self.player.lives > 0:
+                            self.player.invulnerable = FPS * 2
                     self.combo = 0
-                    if self.score > 0:
-                        self.score -= 1
+
+    def draw_lives(self):
+        for i in range(self.player.lives):
+            pygame.draw.rect(
+                self.screen, RED, (10 + i * 30, WINDOW_HEIGHT - 40, 20, 20)
+            )
 
     def draw(self):
         self.screen.fill(BLACK)
 
-        # Draw falling colors
         for color in self.falling_colors:
             pygame.draw.rect(self.screen, color["color"], color["rect"])
 
-        # Draw player
-        pygame.draw.rect(self.screen, WHITE, self.player.rect)
+        # Draw player with flashing effect when invulnerable
+        if self.player.invulnerable == 0 or self.player.invulnerable % 10 < 5:
+            pygame.draw.rect(self.screen, WHITE, self.player.rect)
 
-        # Draw target color name
         text = self.font.render(self.target_color_name, True, self.target_color)
         text_rect = text.get_rect(center=(WINDOW_WIDTH / 2, 50))
         self.screen.blit(text, text_rect)
 
-        # Draw score, combo and speed
         score_text = self.font.render(f"Score: {self.score}", True, WHITE)
         combo_text = self.font.render(f"Combo: {self.combo}x", True, WHITE)
         speed_text = self.font.render(f"Speed: {self.speed:.1f}x", True, WHITE)
         self.screen.blit(score_text, (10, 10))
         self.screen.blit(combo_text, (10, 50))
         self.screen.blit(speed_text, (10, 90))
+
+        self.draw_lives()
+
+        if self.game_over:
+            game_over_text = self.font.render(
+                "GAME OVER - Press SPACE to restart", True, WHITE
+            )
+            text_rect = game_over_text.get_rect(
+                center=(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+            )
+            self.screen.blit(game_over_text, text_rect)
 
         pygame.display.flip()
 
@@ -191,10 +217,19 @@ class ColorMatch:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    if self.game_over:
+                        self.reset_game()
+                        self.new_target()
 
-            self.player.update()
-            self.spawn_falling_color()
-            self.update_falling_colors()
+            if not self.game_over:
+                if self.player.lives <= 0:
+                    self.game_over = True
+                else:
+                    self.player.update()
+                    self.spawn_falling_color()
+                    self.update_falling_colors()
+
             self.draw()
             self.clock.tick(FPS)
 
