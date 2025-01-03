@@ -54,8 +54,7 @@ class Game:
     def handle_attack(self):
         attack_rect = self.player.attack()
         for monster in list(self.monsters):  # Create list copy since we'll modify group
-            monster_rect = self.camera.apply(monster)
-            if attack_rect.colliderect(monster_rect):
+            if attack_rect.colliderect(monster.rect):
                 if monster.take_damage(10):  # Deal 10 damage
                     self.monsters.remove(monster)
     

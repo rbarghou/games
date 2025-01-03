@@ -67,14 +67,13 @@ class Player(pygame.sprite.Sprite):
         # Start attack effect timer
         self.attack_effect_time = pygame.time.get_ticks()
         
-        # Return attack rectangle for collision detection
-        attack_rect = pygame.Rect(
-            self.rect.centerx - ATTACK_RANGE,
-            self.rect.centery - ATTACK_RANGE,
+        # Create and return attack rectangle centered on player
+        return pygame.Rect(
+            self.rect.x + (self.rect.width // 2) - ATTACK_RANGE,
+            self.rect.y + (self.rect.height // 2) - ATTACK_RANGE,
             ATTACK_RANGE * 2,
             ATTACK_RANGE * 2
         )
-        return attack_rect
         
     def draw_attack_effect(self, screen, camera_offset):
         current_time = pygame.time.get_ticks()
