@@ -94,6 +94,7 @@ class ColorMatch:
                             if self.player.lives > 0:
                                 self.player.invulnerable = FPS * 2
                     self.combo = 0
+                    self.new_target()
 
     def draw_lives(self):
         for i in range(self.player.lives):
