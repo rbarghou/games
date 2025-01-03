@@ -140,6 +140,20 @@ class Player(pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, self.rect)
         
+        # Draw health bar
+        health_width = int(HEALTH_BAR_WIDTH * (self.hp / PLAYER_HP))
+        pygame.draw.rect(screen, RED,  # Background (empty health)
+                        (self.rect.x, 
+                         self.rect.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT,
+                         HEALTH_BAR_WIDTH, 
+                         HEALTH_BAR_HEIGHT))
+        if health_width > 0:
+            pygame.draw.rect(screen, GREEN,  # Foreground (current health)
+                           (self.rect.x, 
+                            self.rect.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT,
+                            health_width, 
+                            HEALTH_BAR_HEIGHT))
+        
         # Draw direction indicator
         indicator_size = 8
         if self.facing == 'right':

@@ -35,6 +35,11 @@ HEALTH_BAR_OFFSET = 5  # pixels above entity
 ATTACK_EFFECT_DURATION = 200  # milliseconds
 ATTACK_EFFECT_COLOR = (255, 255, 0)  # Yellow
 
+# Monster settings
+MONSTER_ATTACK_RANGE = 40  # pixels
+MONSTER_ATTACK_DAMAGE = 5
+MONSTER_ATTACK_COOLDOWN = 1000  # milliseconds
+
 # Field of View settings
 FOV_RADIUS = 8  # tiles
 FOV_LIGHT_WALLS = True
