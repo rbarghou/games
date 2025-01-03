@@ -68,6 +68,8 @@ MONSTER_TYPES = {
 # Spawn settings
 MONSTERS_PER_ROOM = (0, 3)  # (min, max) monsters per room
 SPAWN_DISTANCE_FROM_PLAYER = 200  # Minimum pixels from player for initial spawn
+MONSTER_SPAWN_INTERVAL = 5000  # Milliseconds between spawn attempts
+MAX_MONSTERS = 30  # Maximum number of monsters allowed at once
 
 # Field of View settings
 FOV_RADIUS = 8  # tiles

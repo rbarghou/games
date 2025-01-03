@@ -13,6 +13,7 @@ class Game:
         pygame.display.set_caption("Roguelike Adventure")
         self.clock = pygame.time.Clock()
         self.running = True
+        self.last_spawn_time = pygame.time.get_ticks()
         
         # Initialize joysticks
         pygame.joystick.init()
@@ -40,23 +41,33 @@ class Game:
             num_monsters = random.randint(*MONSTERS_PER_ROOM)
             
             for _ in range(num_monsters):
-                # Random position within room
-                x = random.randint(room.x1 + 1, room.x2 - 1) * TILE_SIZE
-                y = random.randint(room.y1 + 1, room.y2 - 1) * TILE_SIZE
+                self.spawn_single_monster(room)
                 
-                # Check distance from player
-                dx = x - self.player.rect.x
-                dy = y - self.player.rect.y
-                if (dx * dx + dy * dy) < SPAWN_DISTANCE_FROM_PLAYER * SPAWN_DISTANCE_FROM_PLAYER:
-                    continue
-                
-                # Choose monster type based on spawn weights
-                weights = [info['spawn_weight'] for info in MONSTER_TYPES.values()]
-                monster_type = random.choices(list(MONSTER_TYPES.keys()), 
-                                           weights=weights, k=1)[0]
-                
-                monster = Monster(x, y, monster_type)
-                self.monsters.add(monster)
+    def spawn_single_monster(self, specific_room=None):
+        # Choose a random room (not the first room)
+        available_rooms = self.map_gen.rooms[1:] if specific_room is None else [specific_room]
+        if not available_rooms:
+            return
+            
+        room = random.choice(available_rooms)
+        
+        # Random position within room
+        x = random.randint(room.x1 + 1, room.x2 - 1) * TILE_SIZE
+        y = random.randint(room.y1 + 1, room.y2 - 1) * TILE_SIZE
+        
+        # Check distance from player
+        dx = x - self.player.rect.x
+        dy = y - self.player.rect.y
+        if (dx * dx + dy * dy) < SPAWN_DISTANCE_FROM_PLAYER * SPAWN_DISTANCE_FROM_PLAYER:
+            return
+        
+        # Choose monster type based on spawn weights
+        weights = [info['spawn_weight'] for info in MONSTER_TYPES.values()]
+        monster_type = random.choices(list(MONSTER_TYPES.keys()), 
+                                   weights=weights, k=1)[0]
+        
+        monster = Monster(x, y, monster_type)
+        self.monsters.add(monster)
     
     def handle_events(self):
         for event in pygame.event.get():
@@ -79,6 +90,12 @@ class Game:
         if self.player.hp <= 0:
             self.running = False
             return
+            
+        current_time = pygame.time.get_ticks()
+        if (current_time - self.last_spawn_time >= MONSTER_SPAWN_INTERVAL and 
+            len(self.monsters) < MAX_MONSTERS):
+            self.spawn_single_monster()
+            self.last_spawn_time = current_time
             
         self.player.update(self.game_map)
         self.monsters.update(self.player, self.game_map)
