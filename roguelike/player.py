@@ -24,6 +24,9 @@ class Player(pygame.sprite.Sprite):
                 self.attack()
                 
     def update(self, game_map):
+        if self.hp <= 0:
+            return  # Don't move if dead
+            
         dx = 0
         dy = 0
         

@@ -76,6 +76,10 @@ class Game:
                     self.monsters.remove(monster)
     
     def update(self):
+        if self.player.hp <= 0:
+            self.running = False
+            return
+            
         self.player.update(self.game_map)
         self.monsters.update(self.player, self.game_map)
         self.camera.update(self.player)
