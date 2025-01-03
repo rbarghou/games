@@ -56,10 +56,12 @@ class ColorMatch:
     def spawn_falling_color(self):
         if random.random() < 0.02 * self.speed:
             color = random.choice(COLORS)
-            x = random.randint(0, WINDOW_WIDTH - 30)
+            size = 30 + self.combo * 5  # Increase size based on combo
+            x = random.randint(0, WINDOW_WIDTH - size)
             self.falling_colors.append({
-                "color": color, 
-                "rect": pygame.Rect(x, -30, 30, 30)
+                "color": color,
+                "rect": pygame.Rect(x, -size, size, size),
+                "size": size  # Store size
             })
             
     def update_falling_colors(self):
@@ -72,8 +74,8 @@ class ColorMatch:
                 self.falling_colors.remove(color)
                 if color["color"] == self.target_color:
                     self.sound_manager.match_sound.play()
-                    base_points = int(10 * (1 + self.combo * 0.5 * (1 + self.shop.upgrades["combo_rate"])) 
-                                    * (self.speed / INITIAL_SPEED))
+                    size_multiplier = color["size"] / 30  # Calculate size multiplier
+                    base_points = int(10 * size_multiplier * (1 + self.combo * 0.5))
                     multiplier = 1 + self.shop.upgrades["point_multiplier"]
                     self.score += base_points
                     self.credits += int(base_points * multiplier)
