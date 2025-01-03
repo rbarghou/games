@@ -13,6 +13,12 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         
+        # Initialize joysticks
+        pygame.joystick.init()
+        self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
+        for joy in self.joysticks:
+            joy.init()
+        
         self.map_gen = MapGenerator()
         self.game_map = self.map_gen.generate()
         self.player = Player(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
