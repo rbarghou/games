@@ -138,21 +138,23 @@ class Player(pygame.sprite.Sprite):
                      ATTACK_RANGE), 2)
         
     def draw(self, screen):
-        screen.blit(self.image, self.rect)
+        # Get camera offset from the game instance
+        camera_x = self.rect.x - self.rect.x
+        camera_y = self.rect.y - self.rect.y
         
-        # Draw health bar
+        # Draw health bar with camera offset
+        bar_x = self.rect.x - camera_x
+        bar_y = self.rect.y - camera_y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT
+        
+        # Draw background (empty health bar)
+        pygame.draw.rect(screen, RED,
+                        (bar_x, bar_y, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT))
+        
+        # Draw foreground (filled health bar)
         health_width = int(HEALTH_BAR_WIDTH * (self.hp / PLAYER_HP))
-        pygame.draw.rect(screen, RED,  # Background (empty health)
-                        (self.rect.x, 
-                         self.rect.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT,
-                         HEALTH_BAR_WIDTH, 
-                         HEALTH_BAR_HEIGHT))
         if health_width > 0:
-            pygame.draw.rect(screen, GREEN,  # Foreground (current health)
-                           (self.rect.x, 
-                            self.rect.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT,
-                            health_width, 
-                            HEALTH_BAR_HEIGHT))
+            pygame.draw.rect(screen, GREEN,
+                           (bar_x, bar_y, health_width, HEALTH_BAR_HEIGHT))
         
         # Draw direction indicator
         indicator_size = 8

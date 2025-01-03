@@ -76,7 +76,19 @@ class Game:
         player_rect = self.camera.apply(self.player)
         self.screen.blit(self.player.image, player_rect)
         self.player.draw_attack_effect(self.screen, (self.camera.x, self.camera.y))
-        self.player.draw(self.screen)  # This draws the health bar
+        
+        # Draw health bar at correct screen position
+        health_x = player_rect.x
+        health_y = player_rect.y - HEALTH_BAR_OFFSET - HEALTH_BAR_HEIGHT
+        health_width = int(HEALTH_BAR_WIDTH * (self.player.hp / PLAYER_HP))
+        
+        # Background (empty health)
+        pygame.draw.rect(self.screen, RED,
+                        (health_x, health_y, HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT))
+        # Foreground (current health)
+        if health_width > 0:
+            pygame.draw.rect(self.screen, GREEN,
+                           (health_x, health_y, health_width, HEALTH_BAR_HEIGHT))
         
         # Draw only visible monsters with camera offset and health bars
         for monster in self.monsters:
