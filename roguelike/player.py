@@ -37,8 +37,8 @@ class Player(pygame.sprite.Sprite):
             dy -= self.speed
             
         # Joystick controls
-        for joy in pygame.joystick.get_count():
-            joystick = pygame.joystick.Joystick(joy)
+        for i in range(pygame.joystick.get_count()):
+            joystick = pygame.joystick.Joystick(i)
             
             # Left analog stick
             dx += joystick.get_axis(0) * self.speed
