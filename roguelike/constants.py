@@ -17,6 +17,7 @@ FPS = 60
 # Player settings
 PLAYER_SPEED = 5
 PLAYER_HP = 100
+ATTACK_RANGE = 50  # pixels
 
 # Map settings
 MAP_WIDTH = 50

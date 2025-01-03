@@ -39,7 +39,19 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.handle_attack()
+            elif event.type == pygame.JOYBUTTONDOWN and event.button == 0:
+                self.handle_attack()
             self.player.handle_event(event)
+            
+    def handle_attack(self):
+        attack_rect = self.player.attack()
+        for monster in list(self.monsters):  # Create list copy since we'll modify group
+            monster_rect = self.camera.apply(monster)
+            if attack_rect.colliderect(monster_rect):
+                if monster.take_damage(10):  # Deal 10 damage
+                    self.monsters.remove(monster)
     
     def update(self):
         self.player.update(self.game_map)

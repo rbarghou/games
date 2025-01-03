@@ -31,3 +31,7 @@ class Monster(pygame.sprite.Sprite):
     def check_collision(self, game_map):
         return game_map.is_wall(self.rect.centerx // TILE_SIZE, 
                               self.rect.centery // TILE_SIZE)
+                              
+    def take_damage(self, amount):
+        self.hp -= amount
+        return self.hp <= 0  # Return True if monster dies

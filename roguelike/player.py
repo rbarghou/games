@@ -63,8 +63,14 @@ class Player(pygame.sprite.Sprite):
                               self.rect.centery // TILE_SIZE)
     
     def attack(self):
-        # Will implement combat system later
-        pass
+        # Return attack rectangle for collision detection
+        attack_rect = pygame.Rect(
+            self.rect.centerx - ATTACK_RANGE,
+            self.rect.centery - ATTACK_RANGE,
+            ATTACK_RANGE * 2,
+            ATTACK_RANGE * 2
+        )
+        return attack_rect
         
     def draw(self, screen):
         screen.blit(self.image, self.rect)
