@@ -72,10 +72,11 @@ class Game:
         self.screen.fill(BLACK)
         self.game_map.draw(self.screen, self.camera)
         
-        # Draw player with camera offset and attack effect
+        # Draw player with camera offset, attack effect, and health bar
         player_rect = self.camera.apply(self.player)
         self.screen.blit(self.player.image, player_rect)
         self.player.draw_attack_effect(self.screen, (self.camera.x, self.camera.y))
+        self.player.draw(self.screen)  # This draws the health bar
         
         # Draw only visible monsters with camera offset and health bars
         for monster in self.monsters:
