@@ -25,3 +25,8 @@ MAP_HEIGHT = 50
 ROOM_MAX_SIZE = 10
 ROOM_MIN_SIZE = 6
 MAX_ROOMS = 30
+
+# Health bar settings
+HEALTH_BAR_WIDTH = 30
+HEALTH_BAR_HEIGHT = 5
+HEALTH_BAR_OFFSET = 5  # pixels above entity

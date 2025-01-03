@@ -72,10 +72,11 @@ class Game:
         player_rect = self.camera.apply(self.player)
         self.screen.blit(self.player.image, player_rect)
         
-        # Draw monsters with camera offset
+        # Draw monsters with camera offset and health bars
         for monster in self.monsters:
             monster_rect = self.camera.apply(monster)
             self.screen.blit(monster.image, monster_rect)
+            monster.draw_health_bar(self.screen, (self.camera.x, self.camera.y))
             
         pygame.display.flip()
         
