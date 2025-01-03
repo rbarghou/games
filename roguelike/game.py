@@ -22,7 +22,13 @@ class Game:
         
         self.map_gen = MapGenerator()
         self.game_map = self.map_gen.generate()
-        self.player = Player(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
+        
+        # Spawn player in the first room
+        first_room = self.map_gen.rooms[0]
+        spawn_x = first_room.center_x * TILE_SIZE
+        spawn_y = first_room.center_y * TILE_SIZE
+        self.player = Player(spawn_x, spawn_y)
+        
         self.monsters = pygame.sprite.Group()
         self.camera = Camera()
         self.spawn_monsters()
