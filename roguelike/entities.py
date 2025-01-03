@@ -3,15 +3,20 @@ import random
 from .constants import *
 
 class Monster(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, monster_type='goblin'):
         super().__init__()
+        self.type = monster_type
+        self.stats = MONSTER_TYPES[monster_type]
+        
         self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
-        self.image.fill(RED)
+        self.image.fill(self.stats['color'])
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 2
-        self.hp = 30
+        
+        self.speed = self.stats['speed']
+        self.hp = self.stats['hp']
+        self.damage = self.stats['damage']
         self.last_attack_time = 0
         
     def update(self, player, game_map):
@@ -61,7 +66,7 @@ class Monster(pygame.sprite.Sprite):
         distance = (dx ** 2 + dy ** 2) ** 0.5
         
         if distance <= MONSTER_ATTACK_RANGE:
-            player.hp -= MONSTER_ATTACK_DAMAGE
+            player.hp -= self.damage
             self.last_attack_time = pygame.time.get_ticks()
         
     def draw_health_bar(self, surface, camera_offset):

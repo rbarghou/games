@@ -34,11 +34,28 @@ class Game:
         self.spawn_monsters()
         
     def spawn_monsters(self):
-        for room in self.map_gen.rooms:
-            if random.random() < 0.7:  # 70% chance to spawn monster in room
-                x = room.center_x * TILE_SIZE
-                y = room.center_y * TILE_SIZE
-                monster = Monster(x, y)
+        # Don't spawn in first room (player spawn)
+        for room in self.map_gen.rooms[1:]:
+            # Random number of monsters per room
+            num_monsters = random.randint(*MONSTERS_PER_ROOM)
+            
+            for _ in range(num_monsters):
+                # Random position within room
+                x = random.randint(room.x1 + 1, room.x2 - 1) * TILE_SIZE
+                y = random.randint(room.y1 + 1, room.y2 - 1) * TILE_SIZE
+                
+                # Check distance from player
+                dx = x - self.player.rect.x
+                dy = y - self.player.rect.y
+                if (dx * dx + dy * dy) < SPAWN_DISTANCE_FROM_PLAYER * SPAWN_DISTANCE_FROM_PLAYER:
+                    continue
+                
+                # Choose monster type based on spawn weights
+                weights = [info['spawn_weight'] for info in MONSTER_TYPES.values()]
+                monster_type = random.choices(list(MONSTER_TYPES.keys()), 
+                                           weights=weights, k=1)[0]
+                
+                monster = Monster(x, y, monster_type)
                 self.monsters.add(monster)
     
     def handle_events(self):
