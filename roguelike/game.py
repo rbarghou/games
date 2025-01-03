@@ -77,11 +77,18 @@ class Game:
         self.screen.blit(self.player.image, player_rect)
         self.player.draw_attack_effect(self.screen, (self.camera.x, self.camera.y))
         
-        # Draw monsters with camera offset and health bars
+        # Draw only visible monsters with camera offset and health bars
         for monster in self.monsters:
-            monster_rect = self.camera.apply(monster)
-            self.screen.blit(monster.image, monster_rect)
-            monster.draw_health_bar(self.screen, (self.camera.x, self.camera.y))
+            monster_tile_x = monster.rect.centerx // TILE_SIZE
+            monster_tile_y = monster.rect.centery // TILE_SIZE
+            
+            # Only draw if monster's position is visible
+            if (0 <= monster_tile_x < self.game_map.width and 
+                0 <= monster_tile_y < self.game_map.height and 
+                self.game_map.visible[monster_tile_x][monster_tile_y]):
+                monster_rect = self.camera.apply(monster)
+                self.screen.blit(monster.image, monster_rect)
+                monster.draw_health_bar(self.screen, (self.camera.x, self.camera.y))
             
         pygame.display.flip()
         
