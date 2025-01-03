@@ -22,27 +22,37 @@ class ColorMatch:
         self.credits = 0
         self.reset_game()
         self.font = pygame.font.Font(None, 36)
+        self.next_target = None
         
     def reset_game(self):
         self.score = 0
         self.credits = self.credits if hasattr(self, 'credits') else 0
         self.combo = 0
         self.combo_timer = 0
-        self.speed = INITIAL_SPEED * (1 - self.shop.upgrades["speed_reduction"] if hasattr(self, 'shop') else 1)
+        self.speed = INITIAL_SPEED * (1 - self.shop.upgrades["speed_reduction"])
         self.falling_colors = []
         self.target_color = None
         self.target_color_name = None
         self.game_over = False
         self.in_shop = False
-        self.player = Player(WINDOW_WIDTH//2, WINDOW_HEIGHT - 100)
-        self.player.lives += self.shop.upgrades["extra_lives"] if hasattr(self, 'shop') else 0
+        self.player = Player(WINDOW_WIDTH//2, WINDOW_HEIGHT - 100, 
+                           self.shop.upgrades["player_width"])
+        self.player.lives += self.shop.upgrades["extra_lives"]
+        self.next_target = None
         
     def new_target(self):
+        if self.shop.upgrades["color_preview"] > 0 and self.next_target:
+            self.target_color, self.target_color_name = self.next_target
+            
         color_index = random.randint(0, len(COLORS) - 1)
         name_index = random.randint(0, len(COLOR_NAMES) - 1)
-        self.target_color = COLORS[color_index]
-        self.target_color_name = COLOR_NAMES[name_index]
         
+        if self.shop.upgrades["color_preview"] > 0:
+            self.next_target = (COLORS[color_index], COLOR_NAMES[name_index])
+        else:
+            self.target_color = COLORS[color_index]
+            self.target_color_name = COLOR_NAMES[name_index]
+            
     def spawn_falling_color(self):
         if random.random() < 0.02 * self.speed:
             color = random.choice(COLORS)
@@ -62,21 +72,23 @@ class ColorMatch:
                 self.falling_colors.remove(color)
                 if color["color"] == self.target_color:
                     self.sound_manager.match_sound.play()
-                    base_points = int(10 * (1 + self.combo * 0.5) * (self.speed / INITIAL_SPEED))
+                    base_points = int(10 * (1 + self.combo * 0.5 * (1 + self.shop.upgrades["combo_rate"])) 
+                                    * (self.speed / INITIAL_SPEED))
                     multiplier = 1 + self.shop.upgrades["point_multiplier"]
                     self.score += base_points
                     self.credits += int(base_points * multiplier)
-                    self.combo_timer = 0  # Reset timer on successful match
+                    self.combo_timer = 0
                     self.combo += 1
                     if self.combo >= COMBO_THRESHOLD:
                         self.sound_manager.combo_sound.play()
                     self.speed += SPEED_INCREMENT
                 else:
                     if self.player.invulnerable == 0:
-                        self.sound_manager.fail_sound.play()
-                        self.player.lives -= 1
-                        if self.player.lives > 0:
-                            self.player.invulnerable = FPS * 2
+                        if random.random() > self.shop.upgrades["safety_net"]:
+                            self.sound_manager.fail_sound.play()
+                            self.player.lives -= 1
+                            if self.player.lives > 0:
+                                self.player.invulnerable = FPS * 2
                     self.combo = 0
 
     def draw_lives(self):
@@ -97,17 +109,23 @@ class ColorMatch:
         text_rect = text.get_rect(center=(WINDOW_WIDTH/2, 50))
         self.screen.blit(text, text_rect)
         
+        if self.next_target and self.shop.upgrades["color_preview"] > 0:
+            preview = self.font.render("Next: " + self.next_target[1], True, self.next_target[0])
+            self.screen.blit(preview, (WINDOW_WIDTH - 150, 50))
+        
         score_text = self.font.render(f"Score: {self.score}", True, WHITE)
+        credits_text = self.font.render(f"Credits: {self.credits}", True, GOLD)
         combo_text = self.font.render(f"Combo: {self.combo}x", True, WHITE)
         speed_text = self.font.render(f"Speed: {self.speed:.1f}x", True, WHITE)
         self.screen.blit(score_text, (10, 10))
-        self.screen.blit(combo_text, (10, 50))
-        self.screen.blit(speed_text, (10, 90))
+        self.screen.blit(credits_text, (10, 40))
+        self.screen.blit(combo_text, (10, 70))
+        self.screen.blit(speed_text, (10, 100))
         
         self.draw_lives()
         
         if self.game_over:
-            game_over_text = self.font.render("GAME OVER - Press SPACE to restart", True, WHITE)
+            game_over_text = self.font.render("GAME OVER - Press SPACE to enter shop", True, WHITE)
             text_rect = game_over_text.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
             self.screen.blit(game_over_text, text_rect)
         

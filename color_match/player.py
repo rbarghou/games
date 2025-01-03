@@ -2,8 +2,8 @@ import pygame
 from constants import PLAYER_SPEED, PLAYER_SIZE, INITIAL_LIVES, WINDOW_WIDTH, WINDOW_HEIGHT, FPS
 
 class Player:
-    def __init__(self, x, y):
-        self.rect = pygame.Rect(x, y, PLAYER_SIZE, PLAYER_SIZE)
+    def __init__(self, x, y, width_bonus=0):
+        self.rect = pygame.Rect(x, y, PLAYER_SIZE + width_bonus, PLAYER_SIZE)
         self.speed = PLAYER_SPEED
         self.velocity_x = 0
         self.velocity_y = 0

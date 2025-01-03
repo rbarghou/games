@@ -28,5 +28,13 @@ SHOP_ITEMS = [
     {"name": "Extra Life", "cost": 1000, "description": "Add one life"},
     {"name": "Speed Down", "cost": 800, "description": "Reduce game speed by 20%"},
     {"name": "Combo Time", "cost": 500, "description": "Increase combo timer"},
-    {"name": "Point Bonus", "cost": 1500, "description": "Earn 50% more credits"}
+    {"name": "Point Bonus", "cost": 1500, "description": "Earn 50% more credits"},
+    {"name": "Wider Player", "cost": 2000, "description": "Increase player width"},
+    {"name": "Color Preview", "cost": 1200, "description": "See next color target"},
+    {
+        "name": "Safety Net",
+        "cost": 3000,
+        "description": "20% chance to avoid life loss",
+    },
+    {"name": "Combo Bonus", "cost": 1800, "description": "Faster combo multiplier"},
 ]
