@@ -56,7 +56,9 @@ class ColorMatch:
     def spawn_falling_color(self):
         if random.random() < 0.02 * self.speed:
             color = random.choice(COLORS)
-            size = 30 + self.combo * 5  # Increase size based on combo
+            size = 30
+            if color == self.target_color:
+                size += self.combo * 5  # Increase size based on combo
             x = random.randint(0, WINDOW_WIDTH - size)
             self.falling_colors.append({
                 "color": color,
