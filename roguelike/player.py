@@ -78,23 +78,64 @@ class Player(pygame.sprite.Sprite):
         # Start attack effect timer
         self.attack_effect_time = pygame.time.get_ticks()
         
-        # Create and return attack rectangle centered on player
-        return pygame.Rect(
-            self.rect.x + (self.rect.width // 2) - ATTACK_RANGE,
-            self.rect.y + (self.rect.height // 2) - ATTACK_RANGE,
-            ATTACK_RANGE * 2,
-            ATTACK_RANGE * 2
-        )
+        # Create directional attack rectangle based on facing direction
+        if self.facing == 'right':
+            return pygame.Rect(
+                self.rect.right,
+                self.rect.centery - ATTACK_RANGE//2,
+                ATTACK_RANGE,
+                ATTACK_RANGE
+            )
+        elif self.facing == 'left':
+            return pygame.Rect(
+                self.rect.left - ATTACK_RANGE,
+                self.rect.centery - ATTACK_RANGE//2,
+                ATTACK_RANGE,
+                ATTACK_RANGE
+            )
+        elif self.facing == 'up':
+            return pygame.Rect(
+                self.rect.centerx - ATTACK_RANGE//2,
+                self.rect.top - ATTACK_RANGE,
+                ATTACK_RANGE,
+                ATTACK_RANGE
+            )
+        else:  # down
+            return pygame.Rect(
+                self.rect.centerx - ATTACK_RANGE//2,
+                self.rect.bottom,
+                ATTACK_RANGE,
+                ATTACK_RANGE
+            )
         
     def draw_attack_effect(self, screen, camera_offset):
         current_time = pygame.time.get_ticks()
         if current_time - self.attack_effect_time < ATTACK_EFFECT_DURATION:
-            # Draw attack range circle
-            center_x = self.rect.centerx - camera_offset[0]
-            center_y = self.rect.centery - camera_offset[1]
-            pygame.draw.circle(screen, ATTACK_EFFECT_COLOR, 
-                             (center_x, center_y), 
-                             ATTACK_RANGE, 2)  # 2 pixel width outline
+            # Draw directional attack effect
+            if self.facing == 'right':
+                pygame.draw.rect(screen, ATTACK_EFFECT_COLOR,
+                    (self.rect.right - camera_offset[0],
+                     self.rect.centery - ATTACK_RANGE//2 - camera_offset[1],
+                     ATTACK_RANGE,
+                     ATTACK_RANGE), 2)
+            elif self.facing == 'left':
+                pygame.draw.rect(screen, ATTACK_EFFECT_COLOR,
+                    (self.rect.left - ATTACK_RANGE - camera_offset[0],
+                     self.rect.centery - ATTACK_RANGE//2 - camera_offset[1],
+                     ATTACK_RANGE,
+                     ATTACK_RANGE), 2)
+            elif self.facing == 'up':
+                pygame.draw.rect(screen, ATTACK_EFFECT_COLOR,
+                    (self.rect.centerx - ATTACK_RANGE//2 - camera_offset[0],
+                     self.rect.top - ATTACK_RANGE - camera_offset[1],
+                     ATTACK_RANGE,
+                     ATTACK_RANGE), 2)
+            else:  # down
+                pygame.draw.rect(screen, ATTACK_EFFECT_COLOR,
+                    (self.rect.centerx - ATTACK_RANGE//2 - camera_offset[0],
+                     self.rect.bottom - camera_offset[1],
+                     ATTACK_RANGE,
+                     ATTACK_RANGE), 2)
         
     def draw(self, screen):
         screen.blit(self.image, self.rect)
