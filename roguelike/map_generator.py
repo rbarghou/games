@@ -38,12 +38,20 @@ class GameMap:
             return self.tiles[x][y]
         return True
         
-    def draw(self, screen):
-        for x in range(self.width):
-            for y in range(self.height):
+    def draw(self, screen, camera):
+        # Calculate visible range based on camera position
+        start_x = max(0, camera.x // TILE_SIZE)
+        end_x = min(self.width, (camera.x + WINDOW_WIDTH) // TILE_SIZE + 1)
+        start_y = max(0, camera.y // TILE_SIZE)
+        end_y = min(self.height, (camera.y + WINDOW_HEIGHT) // TILE_SIZE + 1)
+        
+        # Only draw visible tiles
+        for x in range(start_x, end_x):
+            for y in range(start_y, end_y):
                 if self.tiles[x][y]:  # Wall
                     pygame.draw.rect(screen, GRAY,
-                                   (x * TILE_SIZE, y * TILE_SIZE,
+                                   (x * TILE_SIZE - camera.x,
+                                    y * TILE_SIZE - camera.y,
                                     TILE_SIZE, TILE_SIZE))
 
 class MapGenerator:

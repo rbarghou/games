@@ -4,6 +4,7 @@ from .constants import *
 from .player import Player
 from .map_generator import MapGenerator
 from .entities import Monster
+from .camera import Camera
 
 class Game:
     def __init__(self):
@@ -23,6 +24,7 @@ class Game:
         self.game_map = self.map_gen.generate()
         self.player = Player(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)
         self.monsters = pygame.sprite.Group()
+        self.camera = Camera()
         self.spawn_monsters()
         
     def spawn_monsters(self):
@@ -42,12 +44,21 @@ class Game:
     def update(self):
         self.player.update(self.game_map)
         self.monsters.update(self.player, self.game_map)
+        self.camera.update(self.player)
         
     def draw(self):
         self.screen.fill(BLACK)
-        self.game_map.draw(self.screen)
-        self.player.draw(self.screen)
-        self.monsters.draw(self.screen)
+        self.game_map.draw(self.screen, self.camera)
+        
+        # Draw player with camera offset
+        player_rect = self.camera.apply(self.player)
+        self.screen.blit(self.player.image, player_rect)
+        
+        # Draw monsters with camera offset
+        for monster in self.monsters:
+            monster_rect = self.camera.apply(monster)
+            self.screen.blit(monster.image, monster_rect)
+            
         pygame.display.flip()
         
     def run(self):
