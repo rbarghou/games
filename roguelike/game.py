@@ -63,6 +63,11 @@ class Game:
         self.monsters.update(self.player, self.game_map)
         self.camera.update(self.player)
         
+        # Update field of view
+        player_tile_x = self.player.rect.centerx // TILE_SIZE
+        player_tile_y = self.player.rect.centery // TILE_SIZE
+        self.game_map.compute_fov(player_tile_x, player_tile_y, FOV_RADIUS)
+        
     def draw(self):
         self.screen.fill(BLACK)
         self.game_map.draw(self.screen, self.camera)

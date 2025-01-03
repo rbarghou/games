@@ -32,11 +32,63 @@ class GameMap:
         self.width = width
         self.height = height
         self.tiles = [[True for y in range(height)] for x in range(width)]  # True = wall
+        self.visible = [[False for y in range(height)] for x in range(width)]
+        self.explored = [[False for y in range(height)] for x in range(width)]
         
     def is_wall(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
             return self.tiles[x][y]
         return True
+        
+    def compute_fov(self, x, y, radius):
+        # Reset visibility
+        for i in range(self.width):
+            for j in range(self.height):
+                self.visible[i][j] = False
+                
+        # Ray casting in all directions
+        for angle in range(0, 360, 5):  # Cast a ray every 5 degrees
+            self._cast_ray(x, y, angle, radius)
+            
+    def _cast_ray(self, start_x, start_y, angle, max_distance):
+        import math
+        
+        # Convert angle to radians
+        rad = math.radians(angle)
+        
+        # Calculate direction vector
+        dx = math.cos(rad)
+        dy = math.sin(rad)
+        
+        # Start position (in tile coordinates)
+        x = float(start_x)
+        y = float(start_y)
+        
+        # Mark starting position as visible
+        self.visible[int(x)][int(y)] = True
+        self.explored[int(x)][int(y)] = True
+        
+        # Cast the ray
+        for distance in range(max_distance):
+            # Move along the ray
+            x += dx
+            y += dy
+            
+            # Convert to integer coordinates
+            tile_x = int(x)
+            tile_y = int(y)
+            
+            # Stop if out of bounds
+            if not (0 <= tile_x < self.width and 0 <= tile_y < self.height):
+                break
+                
+            # Mark tile as visible and explored
+            self.visible[tile_x][tile_y] = True
+            self.explored[tile_x][tile_y] = True
+            
+            # Stop at walls
+            if self.tiles[tile_x][tile_y]:
+                break
         
     def draw(self, screen, camera):
         # Calculate visible range based on camera position
@@ -45,14 +97,16 @@ class GameMap:
         start_y = max(0, camera.y // TILE_SIZE)
         end_y = min(self.height, (camera.y + WINDOW_HEIGHT) // TILE_SIZE + 1)
         
-        # Only draw visible tiles
+        # Only draw explored tiles
         for x in range(start_x, end_x):
             for y in range(start_y, end_y):
-                if self.tiles[x][y]:  # Wall
-                    pygame.draw.rect(screen, GRAY,
-                                   (x * TILE_SIZE - camera.x,
-                                    y * TILE_SIZE - camera.y,
-                                    TILE_SIZE, TILE_SIZE))
+                if self.explored[x][y]:
+                    if self.tiles[x][y]:  # Wall
+                        color = VISIBLE_COLOR if self.visible[x][y] else UNSEEN_COLOR
+                        pygame.draw.rect(screen, color,
+                                       (x * TILE_SIZE - camera.x,
+                                        y * TILE_SIZE - camera.y,
+                                        TILE_SIZE, TILE_SIZE))
 
 class MapGenerator:
     def __init__(self):

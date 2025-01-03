@@ -34,3 +34,9 @@ HEALTH_BAR_OFFSET = 5  # pixels above entity
 # Attack effect settings
 ATTACK_EFFECT_DURATION = 200  # milliseconds
 ATTACK_EFFECT_COLOR = (255, 255, 0)  # Yellow
+
+# Field of View settings
+FOV_RADIUS = 8  # tiles
+FOV_LIGHT_WALLS = True
+VISIBLE_COLOR = (200, 200, 200)  # Light gray for visible walls
+UNSEEN_COLOR = (30, 30, 30)    # Dark gray for unseen areas
